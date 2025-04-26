@@ -1,5 +1,5 @@
 import React from "react";
-import { TaskContainer } from "./TaskContainer";
+import TaskContainer from "./TaskContainer";
 
 const ContentContainer = () => {
     return (

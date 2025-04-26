@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import TaskList from "./TaskList";
 import CreateTaskSection from "./CreateTaskSection";
 import SaveTaskSection from "./SaveTaskSection";
@@ -7,32 +7,14 @@ import { StorageService } from "../services/StorageService";
 import { TASK_STORAGE_KEY } from "../constants/storageKeys";
 import { TASK_STATUS } from "../constants/taskStatus";
 import { ACTIONS } from "../constants/reducerActions";
-
-const generateId = () => Math.floor(Math.random() * Date.now());
+import { TaskContext } from "../contexts/TaskContext";
 
 const getInitialState = () => {
     return JSON.parse(StorageService.getItem(TASK_STORAGE_KEY)) ?? [];
 };
 
-const tasksReducer = (state, action) => {
-    switch (action.type) {
-        case ACTIONS.SET_TASK:
-            return action.payload;
-        case ACTIONS.ADD_TASK:
-            return [...state, { id: generateId(), ...action.payload }];
-        case ACTIONS.DELETE_TASK:
-            return state.filter(task => task.id !== action.payload);
-        case ACTIONS.EDIT_TASK:
-            return state.map(task => 
-                task.id === action.payload.id ? action.payload : task
-            );
-        default:
-            return state;
-    }
-};
-
-export const TaskContainer = () => {
-    const [allTasks, dispatch] = useReducer(tasksReducer, []);
+const TaskContainer = () => {
+    const { tasks: allTasks, dispatch } = useContext(TaskContext);
     const [currentStatus, setCurrentStatus] = useState('');
     const [editStatus, setEditStatus] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -111,3 +93,5 @@ export const TaskContainer = () => {
         </div>
     );
 };
+
+export default TaskContainer;
