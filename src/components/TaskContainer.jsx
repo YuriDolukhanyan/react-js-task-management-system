@@ -48,7 +48,10 @@ export const TaskContainer = () => {
     };
 
     const deleteTask = (id) => {
-        if (allTasks.length === 1) setCurrentStatus(TASK_STATUS.TODO);
+        if (allTasks.length === 1) {
+            setCurrentStatus(TASK_STATUS.TODO);
+            cancelTaskEdit();
+        } 
         dispatch({ type: ACTIONS.DELETE_TASK, payload: id });
     };
 
@@ -66,7 +69,7 @@ export const TaskContainer = () => {
     };
 
     const cancelTaskEdit = () => {
-        setEditStatus(null);
+        setEditStatus(false);
     };
 
     return (
