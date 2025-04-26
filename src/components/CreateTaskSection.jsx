@@ -14,17 +14,16 @@ const CreateTaskSection = ({ onAddTaskButtonClick, taskCreationStatus, onCancelB
             setDescription('');
             return;
         }
-
         onAddTaskButtonClick({
             title,
             description,
             priority,
             status: taskCreationStatus
         });
-
         setTitle('');
         setDescription('');
         setPriority('');
+        onCancelButtonClick();
     };
 
     return (

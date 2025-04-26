@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import TaskList from "./TaskList";
 import CreateTaskSection from "./CreateTaskSection";
 import SaveTaskSection from "./SaveTaskSection";
@@ -6,6 +6,7 @@ import EditTaskSection from "./EditTaskSection";
 import { StorageService } from "../services/StorageService";
 import { TASK_STORAGE_KEY } from "../constants/storageKeys";
 import { TASK_STATUS } from "../constants/taskStatus";
+import { ACTIONS } from "../constants/reducerActions";
 
 const generateId = () => Math.floor(Math.random() * Date.now());
 
@@ -13,32 +14,46 @@ const getInitialState = () => {
     return JSON.parse(StorageService.getItem(TASK_STORAGE_KEY)) ?? [];
 };
 
+const tasksReducer = (state, action) => {
+    switch (action.type) {
+        case ACTIONS.SET_TASK:
+            return action.payload;
+        case ACTIONS.ADD_TASK:
+            return [...state, { id: generateId(), ...action.payload }];
+        case ACTIONS.DELETE_TASK:
+            return state.filter(task => task.id !== action.payload);
+        case ACTIONS.EDIT_TASK:
+            return state.map(task => 
+                task.id === action.payload.id ? action.payload : task
+            );
+        default:
+            return state;
+    }
+};
+
 export const TaskContainer = () => {
-    const [allTasks, setAllTasks] = useState([]);
+    const [allTasks, dispatch] = useReducer(tasksReducer, []);
     const [currentStatus, setCurrentStatus] = useState('');
     const [editStatus, setEditStatus] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
 
     useEffect(() => {
         const data = getInitialState();
-        setAllTasks(data);
+        dispatch({ type: ACTIONS.SET_TASK, payload: data });
         if (!data.length) setCurrentStatus(TASK_STATUS.TODO);
     }, []);
 
     const addTask = (newTask) => {
-        setAllTasks(prev => [...prev, { id: generateId(), ...newTask }]);
-        setCurrentStatus(null);
+        dispatch({ type: ACTIONS.ADD_TASK, payload: newTask });
     };
 
     const deleteTask = (id) => {
         if (allTasks.length === 1) setCurrentStatus(TASK_STATUS.TODO);
-        setAllTasks(prev => prev.filter(task => task.id !== id));
+        dispatch({ type: ACTIONS.DELETE_TASK, payload: id });
     };
 
     const editTask = (task) => {
-        setAllTasks(prev => prev.map(item =>
-            item.id === task.id ? task : item
-        ));
+        dispatch({ type: ACTIONS.EDIT_TASK, payload: task });
     };
 
     const saveTask = () => {
